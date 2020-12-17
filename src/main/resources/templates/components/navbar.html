@@ -1,0 +1,19 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<!--Navbar-->
+<div th:fragment="navbar">
+    <div class="container">
+        <nav class="navbar navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img th:src="@{assets/logo.jpg}" alt="" class="d-inline-block align-top" height=45>
+                    <span width=50> &nbsp; </span>
+                    <span class="display-6">Academia </span>
+                </a>
+                <a href="\logout">
+                    <button type="button" class="btn btn-light">Logout</button>
+                </a>
+            </div>
+        </nav>
+    </div>
+</div>
+</html>
