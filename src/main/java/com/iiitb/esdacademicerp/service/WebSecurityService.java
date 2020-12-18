@@ -53,23 +53,24 @@ public class WebSecurityService extends WebSecurityConfigurerAdapter {
         };
 
         // TODO : Add comments describing the meaning of each function
-        http.authorizeRequests().antMatchers(staticResources).permitAll().anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll().and().logout().invalidateHttpSession(true).clearAuthentication(true).logoutRequestMatcher(new AntPathRequestMatcher("/logout")).and().csrf().disable();
-//        http.
-//                csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers(staticResources)
-//                .permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-//                .loginPage("/login")
-//                .permitAll()
-//                .and()
-//                .logout()
-//                .invalidateHttpSession(true)
-//                .clearAuthentication(true)
-//                .logoutRequestMatcher((new AntPathRequestMatcher("/logout")));
-
+        http
+                .authorizeRequests()
+                .antMatchers(staticResources)
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+                .logout()
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .and()
+                .csrf()
+                .disable();
     }
 
 }
