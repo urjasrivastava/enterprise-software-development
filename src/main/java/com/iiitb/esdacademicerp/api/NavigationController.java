@@ -1,5 +1,9 @@
 package com.iiitb.esdacademicerp.api;
 
+import com.iiitb.esdacademicerp.model.Student;
+import com.iiitb.esdacademicerp.service.CourseEnrollmentService;
+import com.iiitb.esdacademicerp.service.StudentAuthorizationDetail;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +62,16 @@ public class NavigationController {
 
     @GetMapping("/course_selection")
     public String courseSelection(Model courseModel) {
+
+        CourseEnrollmentService courseEnrollmentService = new CourseEnrollmentService();
+
+        Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
+
+        ArrayList<HashMap<String, ?>> jsonObject = courseEnrollmentService.getCourseEnrollmentData(student);
+
+        if(jsonObject == null) {
+            return "error_page"; // TODO : Configure error page
+        }
         return "course_selection";
     }
 

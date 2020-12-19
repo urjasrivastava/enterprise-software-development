@@ -50,4 +50,12 @@ public class StudentAuthorizationDetail implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public long getStudentId() {
+        return student.getStudentId();
+    }
+
+    public Student getStudent() {
+        return student;
+    }
 }

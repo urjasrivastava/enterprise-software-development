@@ -5,11 +5,9 @@ import com.iiitb.esdacademicerp.model.StudentCourse;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface StudentCourseRepository extends CrudRepository<StudentCourse, Long> {
 
-    @Query("SELECT student_courses FROM StudentCourse student_courses WHERE student_courses.student.studentId=?1")
-    // @Query("SELECT student FROM Student student WHERE student.email=?1")
-    public List<StudentCourse> getStudentCourseByStudent(Student student);
+    public ArrayList<StudentCourse> getStudentCourseByStudent(Student student);
 }
