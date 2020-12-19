@@ -3,8 +3,8 @@ CREATE TABLE student_courses(
 	student_id BIGINT NOT NULL,
 	course_id BIGINT NOT NULL,
 	comments VARCHAR(100), 
-	FOREIGN KEY (student_id) REFERENCES Students(student_id), 
-	FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+	FOREIGN KEY (student_id) REFERENCES students(student_id), 
+	FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
 
 -- INSERT STATEMENTS

@@ -3,8 +3,8 @@ CREATE TABLE prerequisite(
 	course_id BIGINT NOT NULL,
 	prerequisite BIGINT NOT NULL,
 	description VARCHAR(100), 
-	FOREIGN KEY (course_id) REFERENCES Courses(course_id), 
-	FOREIGN KEY (prerequisite) REFERENCES Courses(course_id)
+	FOREIGN KEY (course_id) REFERENCES courses(course_id), 
+	FOREIGN KEY (prerequisite) REFERENCES courses(course_id)
 );
 
 -- INSERT STATEMENT

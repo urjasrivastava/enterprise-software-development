@@ -1,12 +1,16 @@
 package com.iiitb.esdacademicerp.api;
 
+import com.iiitb.esdacademicerp.dao.StudentRepository;
+import com.iiitb.esdacademicerp.model.Course;
 import com.iiitb.esdacademicerp.model.Student;
 import com.iiitb.esdacademicerp.service.CourseEnrollmentService;
 import com.iiitb.esdacademicerp.service.StudentAuthorizationDetail;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +19,8 @@ import java.util.Map;
 // Handles general page navigation & page component building
 @Controller
 public class NavigationController {
+    @Autowired
+    private CourseEnrollmentService courseEnrollmentService;
 
     @GetMapping("/")
     public String dashboard(Model dashboardModel) {
@@ -63,16 +69,26 @@ public class NavigationController {
     @GetMapping("/course_selection")
     public String courseSelection(Model courseModel) {
 
-        CourseEnrollmentService courseEnrollmentService = new CourseEnrollmentService();
 
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
 
-        ArrayList<HashMap<String, ?>> jsonObject = courseEnrollmentService.getCourseEnrollmentData(student);
+        HashMap<Course, Short> coursemap = courseEnrollmentService.getCourseEnrollmentData(student);
 
-        if(jsonObject == null) {
+        if(coursemap== null) {
             return "error_page"; // TODO : Configure error page
         }
+        courseModel.addAttribute("Courses",coursemap);
+        for (Map.Entry<Course,Short> entry :coursemap.entrySet())
+            System.out.println("Key = " + entry.getKey().getName() +
+                    ", Value = " + entry.getValue());
         return "course_selection";
+    }
+    @PostMapping("/course_selection")
+    public String submit()
+    {   HashMap<Course,Short> coursemap=new HashMap<>();
+        Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
+        courseEnrollmentService.setCourseEnrollmentStatus(student,coursemap);
+        return("thank_you");
     }
 
 }

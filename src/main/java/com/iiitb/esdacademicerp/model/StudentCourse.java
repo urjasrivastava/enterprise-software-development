@@ -3,12 +3,12 @@ package com.iiitb.esdacademicerp.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "student_courses")
+@Table(name="student_courses")
 public class StudentCourse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", unique = true, nullable = false)
+    @Column(name="id", unique = true, nullable = false)
     private long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
