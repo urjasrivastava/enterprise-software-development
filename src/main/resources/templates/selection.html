@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Course Selection</title>
+</head>
+<body>
+<div align="center">
+    <h1>Welcome</h1>
+    <hr/>
+    <br>
+    <form action="#" name="submitForm" th:action= "@{/course_selection}" th:object= "${courses}" method="post" >
+    <table>
+        <tr th:each="courseenroll,stat : ${courses.enrollment}">
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.courseCode}" th:value="${courseenroll.course.getCourseCode()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.courseId}" th:value="${courseenroll.course.getCourseId()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.description}" th:value="${courseenroll.course.getDescription()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.availableSeats}" th:value="${courseenroll.course.getAvailableSeats()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.capacity}" th:value="${courseenroll.course.getCapacity()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.faculty}" th:value="${courseenroll.course.getFaculty()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.year}" th:value="${courseenroll.course.getYear}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.credits}" th:value="${courseenroll.course.getCredits()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.term}" th:value="${courseenroll.course.getTerm()}"/>
+            <input type="hidden" th:field="*{enrollment[__${stat.index}__].course.name}" th:value="${courseenroll.course.getName()}"/>
+            <td th:text="${courseenroll.course.getName()}" />
+            <td th:text="${courseenroll.course.getCourseCode()}" />
+            <td th:text="${courseenroll.course.getDescription()}" />
+            <td th:text="${courseenroll.course.getFaculty()}" />
+            <td th:text="${courseenroll.course.getYear()}" />
+            <td th:if="${courseenroll.getValue()==0}">
+                <input type="checkbox" name="btn-check" id="btn-check" th:field= "*{enrollment[__${stat.index}__].value}" autocomplete="off" th:value=3  />
+                <input type="hidden" name="_btn-check" th:field="*{enrollment[__${stat.index}__].value}" th:value=0 />
+                <label class="btn btn-primary" for="btn-check" >Enroll</label>
+
+            </td>
+            <td th:if="${courseenroll.getValue()==1}">
+                <input type="checkbox" name="btn-check1" id="btn-check1" th:field= "*{enrollment[__${stat.index}__].value}" autocomplete="off" th:value=2 />
+                <input type="hidden" name="_btn-check" th:field="*{enrollment[__${stat.index}__].value}" th:value=1 />
+                <label class="btn btn-primary" for="btn-check">De-Enroll</label>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" name="btn" id="btn"  value="Submit" autocomplete="off" />
+    <label class="btn btn-primary" for="btn-check">Submit</label>
+    </form>
+</div>
+<div>
+    <span id="invalid"></span>
+</div>
+</body>
+</html>
