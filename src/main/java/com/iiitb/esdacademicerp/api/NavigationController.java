@@ -2,6 +2,8 @@ package com.iiitb.esdacademicerp.api;
 
 import com.iiitb.esdacademicerp.dao.StudentRepository;
 import com.iiitb.esdacademicerp.model.Course;
+import com.iiitb.esdacademicerp.model.CourseEnroll;
+import com.iiitb.esdacademicerp.model.CourseEnrollWrapper;
 import com.iiitb.esdacademicerp.model.Student;
 import com.iiitb.esdacademicerp.service.CourseEnrollmentService;
 import com.iiitb.esdacademicerp.service.StudentAuthorizationDetail;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
@@ -72,23 +75,30 @@ public class NavigationController {
 
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
 
-        HashMap<Course, Short> coursemap = courseEnrollmentService.getCourseEnrollmentData(student);
-
-        if(coursemap== null) {
+        ArrayList<CourseEnroll> courseEnrollmentData = courseEnrollmentService.getCourseEnrollmentData(student);
+        if(courseEnrollmentData== null) {
             return "error_page"; // TODO : Configure error page
         }
-        courseModel.addAttribute("Courses",coursemap);
-        for (Map.Entry<Course,Short> entry :coursemap.entrySet())
-            System.out.println("Key = " + entry.getKey().getName() +
-                    ", Value = " + entry.getValue());
-        return "course_selection";
+
+        CourseEnrollWrapper wrap=new CourseEnrollWrapper();
+        wrap.setEnrollment(courseEnrollmentData);
+        courseModel.addAttribute("courses",wrap);
+        return "selection";
     }
     @PostMapping("/course_selection")
-    public String submit()
-    {   HashMap<Course,Short> coursemap=new HashMap<>();
+    public String submit(@ModelAttribute CourseEnrollWrapper wrap,Model model)
+    {
+        System.out.println(wrap.getEnrollment().size());
+        for(int i=0;i<wrap.getEnrollment().size();i++)
+        {
+            Course c=wrap.getEnrollment().get(i).getCourse();
+            short value=wrap.getEnrollment().get(i).getValue();
+            System.out.println(c.getCourseCode());
+            System.out.println(value);
+        }
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
-        courseEnrollmentService.setCourseEnrollmentStatus(student,coursemap);
-        return("thank_you");
+        courseEnrollmentService.setCourseEnrollmentStatus(student,wrap.getEnrollment());
+        return "thank_you";
     }
 
 }

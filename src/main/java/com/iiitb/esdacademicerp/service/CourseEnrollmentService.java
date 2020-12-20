@@ -5,6 +5,7 @@ import com.iiitb.esdacademicerp.dao.PrerequisiteRepository;
 import com.iiitb.esdacademicerp.dao.StudentCourseRepository;
 import com.iiitb.esdacademicerp.dao.StudentRepository;
 import com.iiitb.esdacademicerp.model.Course;
+import com.iiitb.esdacademicerp.model.CourseEnroll;
 import com.iiitb.esdacademicerp.model.Student;
 import com.iiitb.esdacademicerp.model.StudentCourse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,11 +62,11 @@ public class CourseEnrollmentService {
 
      */
     // The student object will be sent by the controller
-    public HashMap<Course,Short> getCourseEnrollmentData(Student student) {
+    public ArrayList<CourseEnroll> getCourseEnrollmentData(Student student) {
         if(studentCourseRepository==null)
         {System.out.println("NULL");return null;}
         ArrayList<Long> studentcourselist= studentCourseRepository.getStudentCoursesByStudentId(student.getStudentId());
-        ArrayList<Course> courses=courseRepository.getCourseByYear((short) 2020);
+        ArrayList<Course> courses=courseRepository.getCourseByYearAndAvailableSeats((short) 2020);
         for(int i=0;i<courses.size();i++)
         {
             ArrayList<Long> prerequisitelist= prerequisiteRepository.getPrerequisiteByCourseId(courses.get(i).getCourseId());
@@ -82,16 +83,24 @@ public class CourseEnrollmentService {
                 courses.remove(i);
 
         }
-        HashMap<Course,Short> courseHashMap=new HashMap<Course,Short>();
+        ArrayList<CourseEnroll> enrollArrayList=new ArrayList<>();
         for(int i=0;i< courses.size();i++)
         {
+            CourseEnroll en=new CourseEnroll();
             if(studentcourselist.contains(courses.get(i).getCourseId()))
-                courseHashMap.put(courses.get(i),(short)1);
+            {
+                en.setCourse(courses.get(i));
+                en.setValue((short)1);
+            }
             else
-                courseHashMap.put(courses.get(i),(short)0);
+            {
+                en.setCourse(courses.get(i));
+                en.setValue((short)0);
+            }
+            enrollArrayList.add(en);
         }
-        if(courseHashMap.isEmpty())return null;
-        return courseHashMap;
+        if(enrollArrayList.isEmpty())return null;
+        return enrollArrayList;
     }
 
     /* TODO: Function that enroll/de-enrolls the student from a course
@@ -108,13 +117,14 @@ public class CourseEnrollmentService {
         OPTIONAL TODO : You'll have to re-fetch the current available seat status before changing it (concurrency issues)
      */
     // The student object will be sent by the controller
-    public void setCourseEnrollmentStatus(Student student,HashMap<Course,Short> map)
+    public void setCourseEnrollmentStatus(Student student,ArrayList<CourseEnroll> enrollArrayList)
     {
-        for (Map.Entry<Course,Short> entry :map.entrySet())
+        for (int i=0;i< enrollArrayList.size();i++)
         {
-            Course c= entry.getKey();
-            short val= entry.getValue();
-            if(val==1)
+            CourseEnroll en=enrollArrayList.get(i);
+            Course c=en.getCourse();
+            short val=en.getValue();
+            if(val==3)
             {
                 c.setAvailableSeats((short) (c.getAvailableSeats()-1));
                 courseRepository.save(c);
