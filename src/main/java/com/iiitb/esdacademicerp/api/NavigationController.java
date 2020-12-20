@@ -88,14 +88,7 @@ public class NavigationController {
     @PostMapping("/course_selection")
     public String submit(@ModelAttribute CourseEnrollWrapper wrap,Model model)
     {
-        System.out.println(wrap.getEnrollment().size());
-        for(int i=0;i<wrap.getEnrollment().size();i++)
-        {
-            Course c=wrap.getEnrollment().get(i).getCourse();
-            short value=wrap.getEnrollment().get(i).getValue();
-            System.out.println(c.getCourseCode());
-            System.out.println(value);
-        }
+
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
         courseEnrollmentService.setCourseEnrollmentStatus(student,wrap.getEnrollment());
         return "thank_you";
