@@ -76,22 +76,23 @@ public class NavigationController {
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
 
         ArrayList<CourseEnroll> courseEnrollmentData = courseEnrollmentService.getCourseEnrollmentData(student);
-        if(courseEnrollmentData== null) {
+        if (courseEnrollmentData == null) {
             return "error_page"; // TODO : Configure error page
         }
 
-        CourseEnrollWrapper wrap=new CourseEnrollWrapper();
+        CourseEnrollWrapper wrap = new CourseEnrollWrapper();
         wrap.setEnrollment(courseEnrollmentData);
-        courseModel.addAttribute("courses",wrap);
-        return "selection";
+        courseModel.addAttribute("courses", wrap);
+//        return "selection";
+        return "course_selection";
     }
+
     @PostMapping("/course_selection")
-    public String submit(@ModelAttribute CourseEnrollWrapper wrap,Model model)
-    {
+    public String submit(@ModelAttribute CourseEnrollWrapper wrap, Model model) {
 
         Student student = ((StudentAuthorizationDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getStudent();
-        courseEnrollmentService.setCourseEnrollmentStatus(student,wrap.getEnrollment());
-        return "thank_you";
+        courseEnrollmentService.setCourseEnrollmentStatus(student, wrap.getEnrollment());
+        return "redirect:/";
     }
 
 }

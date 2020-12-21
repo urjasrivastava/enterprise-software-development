@@ -10,7 +10,7 @@
 <div th:insert="components/navbar :: navbar"></div>
 
 <div class="container">
-    <div class="row">
+    <div class="row my-auto">
         <div th:each="uiMap : ${ui}" class="col-md-6 col-lg-4 align-self-center">
             <a th:attrappend="href=${!uiMap.get('disabled')} ? ${uiMap.get('href')}">
                 <div class="card" th:attrappend="style=${uiMap.get('disabled')} ? 'opacity:0.4'">

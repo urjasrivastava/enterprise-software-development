@@ -8,56 +8,148 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"/>
+    <link rel="stylesheet" th:href="@{css/styles.css}">
 </head>
 
-<body>
+<body onload="setupCourseList()">
 
-<div th:insert="components/navbar :: navbar" th:each="entry : ${courses}"></div>
+<div th:insert="components/navbar :: navbar"></div>
 
-<form action="">
+<form action="#" name="submitForm" th:action="@{/course_selection}" th:object="${courses}" method="post" onsubmit="return courseValidation()">
     <div class="container">
-
-        <div class="row"></div>
-
-
-        <div class="row d-flex justify-content-center">
+        <div class="row d-flex justify-content-center card-margin" th:each="courseenroll,stat : ${courses.enrollment}">
             <div class="col-sm-12 col-md-10 col-lg-10">
                 <div class="card p-5">
+                    <!-- Hidden inputs required for form submission-->
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.courseCode}"
+                           th:value="${courseenroll.course.getCourseCode()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.name}"
+                           th:value="${courseenroll.course.getName()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.faculty}"
+                           th:value="${courseenroll.course.getFaculty()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.description}"
+                           th:value="${courseenroll.course.getDescription()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.credits}"
+                           th:value="${courseenroll.course.getCredits()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.availableSeats}"
+                           th:value="${courseenroll.course.getAvailableSeats()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.courseId}"
+                           th:value="${courseenroll.course.getCourseId()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.capacity}"
+                           th:value="${courseenroll.course.getCapacity()}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.year}"
+                           th:value="${courseenroll.course.getYear}"/>
+                    <input type="hidden"
+                           th:field="*{enrollment[__${stat.index}__].course.term}"
+                           th:value="${courseenroll.course.getTerm()}"/>
+
                     <div class="card-title align-self-center">
-                        <span class="lead"> <b>CS511 Algorithms </b></span> <span> by </span> <span
-                            class="lead">
-                                <b> &nbsp; Prof. Muralidhara
-                                </b></span>
+                        <!-- Course Code -->
+                        <span class="lead"
+                              th:field="*{enrollment[__${stat.index}__].course.courseCode}"
+                              th:text="${courseenroll.course.getCourseCode()}">
+                        </span>
+                        <!-- Course Name -->
+                        <span class="lead"
+                              th:field="*{enrollment[__${stat.index}__].course.name}"
+                              th:text="${courseenroll.course.getName()}">
+                        </span>
+                        <span> &nbsp; by &nbsp;</span>
+                        <!-- Faculty -->
+                        <span class="lead" th:field="*{enrollment[__${stat.index}__].course.faculty}"
+                              th:text="${courseenroll.course.getFaculty()}">
+                        </span>
+
                     </div>
                     <div class="card-body">
                         <dl class="row">
-                            <dt class="col-sm-3">Course Description</dt>
-                            <dd class="col-sm-9" style="text-align: justify;">This course will cover some of the
-                                advanced data structures like
-                                Fibonacci Heaps, Treaps, AVL and red black trees, It cover the algorithms design
-                                techniques like divide and conquer, greedy algorithms and dynamic programming. It
-                                also
-                                covers graph algorithms, including shortest path problems and minimum spanning trees
-                                and
-                                Network flows.
-                            </dd>
+                            <div class="col-sm-10">
+                                <div class="row">
+                                    <dt class="col-sm-3">
+                                        Course Description
+                                    </dt>
+                                    <dd class="col-sm-9" style="text-align: justify;"
+                                        th:field="*{enrollment[__${stat.index}__].course.description}"
+                                        th:text="${courseenroll.course.getDescription()}">
+                                    </dd>
+                                    <br>
+                                    <dt class="col-sm-3">
+                                        Credits
+                                    </dt>
+                                    <dd class="col-sm-9"
+                                        th:field="*{enrollment[__${stat.index}__].course.credits}"
+                                        th:text="${courseenroll.course.getCredits()}">
+                                    </dd>
+                                    <br>
+                                    <dt class="col-sm-3">
+                                        Available Seats
+                                    </dt>
+                                    <br>
+                                    <dd class="col-sm-9"
+                                        th:field="*{enrollment[__${stat.index}__].course.availableSeats}"
+                                        th:text="${courseenroll.course.getAvailableSeats()}">
+                                    </dd>
+                                </div>
 
-                            <dt class="col-sm-3">Pre-requisites</dt>
-                            <dd class="col-sm-9">N/A</dd>
-
-                            <dt class="col-sm-3">Available Seats</dt>
-                            <dd class="col-sm-9">100</dd>
-
-                            <dt class="col-sm-3 text-truncate">Course Credits</dt>
-                            <dd class="col-sm-9">4</dd>
-
-                            <input type="checkbox" class="btn-check" id="btn-check" autocomplete="off"/>
-                            <label class="btn btn-primary" for="btn-check">Checkbox button</label>
+                            </div>
+                            <div class="col-sm-2 my-auto">
+                                <!-- Enroll Button -->
+                                <div th:if="${courseenroll.getValue()==0}" class="text-center">
+                                    <input type="checkbox" class="custom-control-input enroll-checkbox"
+                                           th:attrappend="name=${courseenroll.course.getCourseId()}"
+                                           th:attr="id=${courseenroll.course.getCourseId()}"
+                                           th:field="*{enrollment[__${stat.index}__].value}"
+                                           autocomplete="off"
+                                           th:value=3
+                                           onclick="enrollCheckboxOnClick(this)"
+                                            /> <br>
+                                    <label class="custom-control-label"
+                                           th:attr="for=${courseenroll.course.getCourseId()}">
+                                        Enroll
+                                    </label>
+                                    <input type="hidden"
+                                           th:attrappend="name=${courseenroll.course.getCourseId()}"
+                                           th:field="*{enrollment[__${stat.index}__].value}"
+                                           th:value=0 />
+                                </div>
+                                <!-- De-Enroll Button -->
+                                <div th:if="${courseenroll.getValue()==1}" class="text-center">
+                                    <input type="checkbox" class="custom-control-input enroll-checkbox"
+                                           th:name="|${courseenroll.course.getCourseId()}-1|"
+                                           th:id="|${courseenroll.course.getCourseId()}-1|"
+                                           th:field="*{enrollment[__${stat.index}__].value}"
+                                           autocomplete="off"
+                                           th:value=2
+                                           onclick="deenrollCheckboxOnClick(this)"
+                                            /> <br>
+                                    <label class="custom-control-label"
+                                           th:for="|${courseenroll.course.getCourseId()}-1|">
+                                        De-Enroll
+                                    </label>
+                                    <input type="hidden"
+                                           th:name="|${courseenroll.course.getCourseId()}-1|"
+                                           th:field="*{enrollment[__${stat.index}__].value}"
+                                           th:value=1 />
+                                </div>
+                            </div>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="text-center course-submit">
+            <input type="submit" name="submit" id="submit" value="Submit" autocomplete="off" class="btn btn-primary"/>
+        </div>
+        <script th:src="@{scripts/course_validation.js}"></script>
     </div>
 </form>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"

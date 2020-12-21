@@ -63,43 +63,38 @@ public class CourseEnrollmentService {
      */
     // The student object will be sent by the controller
     public ArrayList<CourseEnroll> getCourseEnrollmentData(Student student) {
-        if(studentCourseRepository==null)
-        {System.out.println("NULL");return null;}
-        ArrayList<Long> studentcourselist= studentCourseRepository.getStudentCoursesByStudentId(student.getStudentId());
-        ArrayList<Course> courses=courseRepository.getCourseByYearAndAvailableSeats((short) 2020);
-        for(int i=0;i<courses.size();i++)
-        {
-            ArrayList<Long> prerequisitelist= prerequisiteRepository.getPrerequisiteByCourseId(courses.get(i).getCourseId());
-            int fl=1;
-            for(int j=0;j<prerequisitelist.size();j++)
-            {
-                if(!studentcourselist.contains(prerequisitelist.get(j)))
-                {
-                    fl=0;
+        if (studentCourseRepository == null) {
+            System.out.println("NULL");
+            return null;
+        }
+        ArrayList<Long> studentcourselist = studentCourseRepository.getStudentCoursesByStudentId(student.getStudentId());
+        ArrayList<Course> courses = courseRepository.getCourseByYearAndAvailableSeats((short) 2020);
+        for (int i = 0; i < courses.size(); i++) {
+            ArrayList<Long> prerequisitelist = prerequisiteRepository.getPrerequisiteByCourseId(courses.get(i).getCourseId());
+            int fl = 1;
+            for (int j = 0; j < prerequisitelist.size(); j++) {
+                if (!studentcourselist.contains(prerequisitelist.get(j))) {
+                    fl = 0;
                     break;
                 }
             }
-            if(fl==0)
+            if (fl == 0)
                 courses.remove(i);
 
         }
-        ArrayList<CourseEnroll> enrollArrayList=new ArrayList<>();
-        for(int i=0;i< courses.size();i++)
-        {
-            CourseEnroll en=new CourseEnroll();
-            if(studentcourselist.contains(courses.get(i).getCourseId()))
-            {
+        ArrayList<CourseEnroll> enrollArrayList = new ArrayList<>();
+        for (int i = 0; i < courses.size(); i++) {
+            CourseEnroll en = new CourseEnroll();
+            if (studentcourselist.contains(courses.get(i).getCourseId())) {
                 en.setCourse(courses.get(i));
-                en.setValue((short)1);
-            }
-            else
-            {
+                en.setValue((short) 1);
+            } else {
                 en.setCourse(courses.get(i));
-                en.setValue((short)0);
+                en.setValue((short) 0);
             }
             enrollArrayList.add(en);
         }
-        if(enrollArrayList.isEmpty())return null;
+        if (enrollArrayList.isEmpty()) return null;
         return enrollArrayList;
     }
 
@@ -117,32 +112,26 @@ public class CourseEnrollmentService {
         OPTIONAL TODO : You'll have to re-fetch the current available seat status before changing it (concurrency issues)
      */
     // The student object will be sent by the controller
-    public void setCourseEnrollmentStatus(Student student,ArrayList<CourseEnroll> enrollArrayList)
-    {
-        for (int i=0;i< enrollArrayList.size();i++)
-        {
-            CourseEnroll en=enrollArrayList.get(i);
-            Course c=en.getCourse();
-            short val=en.getValue();
-            if(val==3)
-            {
-                c.setAvailableSeats((short) (c.getAvailableSeats()-1));
+    public void setCourseEnrollmentStatus(Student student, ArrayList<CourseEnroll> enrollArrayList) {
+        for (int i = 0; i < enrollArrayList.size(); i++) {
+            CourseEnroll en = enrollArrayList.get(i);
+            Course c = en.getCourse();
+            short val = en.getValue();
+            if (val == 3) {
+                c.setAvailableSeats((short) (c.getAvailableSeats() - 1));
                 courseRepository.save(c);
-                StudentCourse s=new StudentCourse();
+                StudentCourse s = new StudentCourse();
                 s.setCourse(c);
                 s.setComments("Enrolled");
                 s.setStudent(student);
                 studentCourseRepository.save(s);
-            }
-            else if(val==2)
-            {
-                c.setAvailableSeats((short) (c.getAvailableSeats()+1));
+            } else if (val == 2) {
+                c.setAvailableSeats((short) (c.getAvailableSeats() + 1));
                 courseRepository.save(c);
-                StudentCourse s= studentCourseRepository.getStudentCoursesByStudentIdAndCourseId(student.getStudentId(),c.getCourseId());
+                StudentCourse s = studentCourseRepository.getStudentCoursesByStudentIdAndCourseId(student.getStudentId(), c.getCourseId());
                 studentCourseRepository.delete(s);
             }
         }
-     return ;
     }
 
 }
