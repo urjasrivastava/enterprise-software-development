@@ -11,6 +11,8 @@ public interface CourseRepository extends CrudRepository<Course, Long> {
 
     public Course getCourseByCourseId(long id);
 
+    public ArrayList<Course> getCourseByCourseIdIn(ArrayList<Long> courseIdList);
+
     @Query("select c from Course c where c.year=?1 and c.availableSeats>0")
     public ArrayList<Course> getCourseByYearAndAvailableSeats(short year);
 }

@@ -11,7 +11,6 @@ import com.iiitb.esdacademicerp.model.StudentCourse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,82 +34,69 @@ public class CourseEnrollmentService {
     private PrerequisiteRepository prerequisiteRepository;
 
 
-    /* TODO : Function that returns the course enrollment data to the controller
-    Return type: ArrayList<HashMap<String, ?>>
-    Contents of the map: (For a course with pre-requisite)
-    {
-        "course_id" : 8,
-        "name" : "Natural Language Processing"
-        "code" : "AI829",
-        "faculty" : "Prof. G Srinivasa",
-        "description" : "blah blah blah",
-        "prerequisite" : [
-            {
-                "name" : "Machine Learning",
-                "code" : "AI101"
-            },
-            {
-                "name" : "Mathematics for Machine Leaning",
-                "code" : "AI102"
-            }
-         ], // If the course has no prerequisites then let this `prerequisite` array be empty
-        "total_credits" : 4,
-        "available_seats" : 100,
-        "is_enrolled" : true // true -> Student is currently enrolled, false -> not enrolled
-    }
-
-
-     */
     // The student object will be sent by the controller
-    public ArrayList<CourseEnroll> getCourseEnrollmentData(Student student) {
+    public Map<String, Object> getCourseEnrollmentData(Student student) {
+//    public ArrayList<CourseEnroll> getCourseEnrollmentData(Student student) {
         if (studentCourseRepository == null) {
             System.out.println("NULL");
             return null;
         }
-        ArrayList<Long> studentcourselist = studentCourseRepository.getStudentCoursesByStudentId(student.getStudentId());
-        ArrayList<Course> courses = courseRepository.getCourseByYearAndAvailableSeats((short) 2020);
-        for (int i = 0; i < courses.size(); i++) {
-            ArrayList<Long> prerequisitelist = prerequisiteRepository.getPrerequisiteByCourseId(courses.get(i).getCourseId());
-            int fl = 1;
-            for (int j = 0; j < prerequisitelist.size(); j++) {
-                if (!studentcourselist.contains(prerequisitelist.get(j))) {
-                    fl = 0;
+
+        ArrayList<Long> studentCourseList = studentCourseRepository.getStudentCoursesByStudentId(student.getStudentId());
+        ArrayList<Course> courseList = courseRepository.getCourseByYearAndAvailableSeats((short) 2020);
+        HashMap<Long, ArrayList<Course>> satisfiedPrerequisiteMap = new HashMap<Long, ArrayList<Course>>();
+
+        for (int courseIndex = 0; courseIndex < courseList.size(); courseIndex++) {
+
+            ArrayList<Long> prerequisiteList = prerequisiteRepository.getPrerequisiteByCourseId(courseList.get(courseIndex).getCourseId());
+
+            boolean isPrerequisiteSatisfied = true;
+
+            for (int prereqIndex = 0; prereqIndex < prerequisiteList.size(); prereqIndex++) {
+                if (!studentCourseList.contains(prerequisiteList.get(prereqIndex))) {
+                    isPrerequisiteSatisfied = false;
                     break;
                 }
             }
-            if (fl == 0)
-                courses.remove(i);
+            if (!isPrerequisiteSatisfied)
+                courseList.remove(courseIndex);
+            else {
+                ArrayList<Course> prereqList = courseRepository.getCourseByCourseIdIn(prerequisiteList);
+                if(prereqList != null && prereqList.size() != 0) {
+                    System.out.println(prereqList.get(0).getName());
+                }
+                satisfiedPrerequisiteMap.put(courseList.get(courseIndex).getCourseId(), prereqList);
+            }
 
         }
+
+        // TODO : Better variable name
+        Map<String, Object> coursePrerequisiteMap = new HashMap<>(); // {"course_enroll" : enrollArrayList, "prerequisite" : "satisfiedPrerequisiteMap"}
+
+
         ArrayList<CourseEnroll> enrollArrayList = new ArrayList<>();
-        for (int i = 0; i < courses.size(); i++) {
-            CourseEnroll en = new CourseEnroll();
-            if (studentcourselist.contains(courses.get(i).getCourseId())) {
-                en.setCourse(courses.get(i));
-                en.setValue((short) 1);
+        for (int coursesIter = 0; coursesIter < courseList.size(); coursesIter++) {
+
+            CourseEnroll courseEnroll = new CourseEnroll();
+            courseEnroll.setCourse(courseList.get(coursesIter));
+            courseEnroll.setPrerequisites(satisfiedPrerequisiteMap.get(courseList.get(coursesIter).getCourseId()));
+            if (studentCourseList.contains(courseList.get(coursesIter).getCourseId())) {
+                courseEnroll.setValue((short) 1);
             } else {
-                en.setCourse(courses.get(i));
-                en.setValue((short) 0);
+                courseEnroll.setValue((short) 0);
             }
-            enrollArrayList.add(en);
+            enrollArrayList.add(courseEnroll);
         }
+
         if (enrollArrayList.isEmpty()) return null;
-        return enrollArrayList;
+
+        coursePrerequisiteMap.put("course_enroll", enrollArrayList);
+        coursePrerequisiteMap.put("prerequisite", satisfiedPrerequisiteMap);
+
+        return coursePrerequisiteMap;
+
     }
 
-    /* TODO: Function that enroll/de-enrolls the student from a course
-
-        It takes a ArrayList<HashMap<String, ?> as the input
-        Contents of the map
-        {
-            "course_id" : 8,
-            "enroll" : true // true -> Student wants to enroll, false -> doesn't want to enroll (de-enroll)
-            // NOTE : You'll have to verify whether student is already enrolled or not we can change this logic if needed
-
-        }
-
-        OPTIONAL TODO : You'll have to re-fetch the current available seat status before changing it (concurrency issues)
-     */
     // The student object will be sent by the controller
     public void setCourseEnrollmentStatus(Student student, ArrayList<CourseEnroll> enrollArrayList) {
         for (int i = 0; i < enrollArrayList.size(); i++) {

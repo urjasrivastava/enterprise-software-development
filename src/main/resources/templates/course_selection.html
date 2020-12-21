@@ -69,6 +69,7 @@
                               th:text="${courseenroll.course.getFaculty()}">
                         </span>
 
+
                     </div>
                     <div class="card-body">
                         <dl class="row">
@@ -97,6 +98,19 @@
                                     <dd class="col-sm-9"
                                         th:field="*{enrollment[__${stat.index}__].course.availableSeats}"
                                         th:text="${courseenroll.course.getAvailableSeats()}">
+                                    </dd>
+                                    <dt class="col-sm-3">
+                                        Prerequisites
+                                    </dt>
+                                    <dd class="col-sm-9" th:object="${prerequisites}" th:with="prereqList=${prerequisites[__${courseenroll.course.getCourseId()+'L'}__]}">
+                                        <span th:if="${prereqList == null || prereqList.size() == 0}">
+                                            This course has no prerequisites
+                                        </span>
+                                        <span th:unless="${prereqList == null}">
+                                            <span th:each="prereq : ${prereqList}">
+                                                <span th:text="${prereq.getName()}"></span><br>
+                                            </span>
+                                        </span>
                                     </dd>
                                 </div>
 
